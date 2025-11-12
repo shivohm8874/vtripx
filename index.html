@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>V-Trip — Voice Assistant</title>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Montserrat:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <!-- AOS (Animate on Scroll) -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #f8f9fa;
+        --card-bg: #ffffff;
+        --text: #212529;
+        --muted: #6c757d;
+        --accent: #000000;
+        --accent-light: #e9ecef;
+        --shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.12);
+      }
+      body.dark {
+        --bg: #121416;
+        --card-bg: #1e2125;
+        --text: #f8f9fa;
+        --muted: #adb5bd;
+        --accent: #ffffff;
+        --accent-light: #343a40;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.25);
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Rubik, system-ui, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Header */
+      .vtrip-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: var(--card-bg);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-light);
+        cursor: pointer;
+        color: var(--accent);
+        transition: all 0.2s ease;
+      }
+      .icon-btn:hover {
+        transform: scale(1.05);
+        background: var(--accent);
+        color: var(--card-bg);
+      }
+      .vtrip-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        text-align: center;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--accent-light);
+        color: var(--accent);
+        font-size: 0.75rem;
+        margin-top: 6px;
+        font-weight: 500;
+      }
+      .status-pill i {
+        margin-right: 4px;
+      }
+
+      /* Main area */
+      main {
+        padding: 90px 20px 150px;
+        min-height: 100vh;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
+      .hero {
+        margin-top: 8vh;
+        text-align: center;
+        max-width: 800px;
+      }
+      .hero h1 {
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin: 0;
+        line-height: 1.2;
+      }
+      .hero h1 strong {
+        color: var(--accent);
+      }
+      .hero p {
+        display: block;
+        color: var(--muted);
+        margin-top: 12px;
+        font-size: 1.1rem;
+      }
+      .hero-features {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 24px;
+      }
+      .feature-badge {
+        display: flex;
+        align-items: center;
+        background: var(--card-bg);
+        padding: 8px 16px;
+        border-radius: 999px;
+        box-shadow: var(--shadow);
+      }
+      .feature-badge i {
+        margin-right: 6px;
+        color: var(--accent);
+      }
+
+      /* Popular cards */
+      .cards-wrap {
+        margin-top: 40px;
+        width: 100%;
+        max-width: 1200px;
+      }
+      .section-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+      .card-sample {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .card-sample:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+      }
+      .card-sample i {
+        font-size: 2rem;
+        color: var(--accent);
+        display: block;
+        margin-bottom: 12px;
+      }
+      .card-sample h3 {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+      }
+      .card-sample p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      /* Fixed bottom input bar */
+      .bottom-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1200;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+        background: var(--card-bg);
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+      }
+      .input-shell {
+        position: relative;
+        max-width: 700px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+      }
+      .mic-floating {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        z-index: 5;
+        transition: all 0.2s ease;
+      }
+      .mic-floating:hover {
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+      .mic-floating:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      .input-box {
+        width: 100%;
+        padding: 14px 60px 14px 64px;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: var(--bg);
+        font-size: 1rem;
+        color: var(--text);
+        transition: all 0.2s ease;
+      }
+      .input-box:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+      }
+      .send-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .send-btn:hover {
+        background: var(--accent);
+        transform: translateY(-50%) scale(1.05);
+      }
+      .send-btn:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      /* Autocomplete suggestions */
+      .suggestions-container {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 40px);
+        max-width: 700px;
+        background: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: var(--shadow-hover);
+        z-index: 1100;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+      .suggestion-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+      }
+      .suggestion-item:last-child {
+        border-bottom: none;
+      }
+      .suggestion-item:hover {
+        background: var(--accent-light);
+      }
+      .suggestion-item i {
+        margin-right: 12px;
+        color: var(--muted);
+      }
+
+      /* Listening overlay - Full screen */
+      .listening-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        transition: opacity 0.3s ease;
+      }
+      .listening-overlay.show {
+        display: flex;
+        opacity: 1;
+      }
+      .listening-card {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+        box-sizing: border-box;
+        color: var(--text);
+      }
+      .listen-header {
+        width: 100%;
+        margin-top: 10px;
+        text-align: center;
+      }
+      .listen-header h2 {
+        font-family: Montserrat;
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin: 0;
+      }
+      .listen-header .status {
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: var(--muted);
+        background: var(--accent-light);
+        padding: 6px 12px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .listen-header .status i {
+        margin-right: 6px;
+      }
+
+      /* Canvas area and text */
+      .wave-wrap {
+        width: 100%;
+        max-width: 760px;
+        margin: 36px auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      canvas#waveCanvas {
+        width: 100%;
+        height: 220px;
+        max-height: 45vh;
+        display: block;
+        border-radius: 12px;
+      }
+
+      .listening-text {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 1rem;
+        margin-bottom: 28px;
+      }
+
+      /* Big mic central */
+      .big-mic-shell {
+        position: relative;
+        border-radius: 50%;
+        width: 180px;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .big-mic {
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-bg);
+        color: var(--accent);
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+      }
+      .big-mic:hover {
+        transform: scale(1.05);
+      }
+      .big-mic:active {
+        transform: scale(0.95);
+      }
+      .big-mic.ringing {
+        animation: ringScale 1s infinite alternate ease-in-out;
+      }
+      @keyframes ringScale {
+        from {
+          transform: scale(1);
+          box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+        }
+        to {
+          transform: scale(1.06);
+          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+        }
+      }
+
+      /* small bottom icons left & right */
+      .listen-actions {
+        width: 100%;
+        max-width: 760px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 28px;
+        padding: 0 24px;
+        box-sizing: border-box;
+      }
+      .listen-action-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        color: var(--text);
+        transition: all 0.2s ease;
+      }
+      .listen-action-btn:hover {
+        transform: scale(1.05);
+        background: var(--accent-light);
+        color: var(--accent);
+      }
+      .listen-action-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Chat interface */
+      .chat-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        background: var(--bg);
+        transition: opacity 0.3s ease;
+      }
+      .chat-overlay.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: var(--card-bg);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .chat-header-info {
+        display: flex;
+        align-items: center;
+      }
+      .chat-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: var(--card-bg);
+        margin-right: 12px;
+      }
+      .chat-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      .chat-status {
+        font-size: 0.75rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+      }
+      .chat-status i {
+        margin-right: 4px;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .message {
+        max-width: 70%;
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+      }
+      .message.user {
+        align-self: flex-end;
+      }
+      .message.ai {
+        align-self: flex-start;
+      }
+      .message-bubble {
+        padding: 12px 16px;
+        border-radius: 18px;
+      }
+      .message.user .message-bubble {
+        background: var(--accent);
+        color: var(--card-bg);
+        border-bottom-right-radius: 4px;
+      }
+      .message.ai .message-bubble {
+        background: var(--card-bg);
+        color: var(--text);
+        border-bottom-left-radius: 4px;
+        box-shadow: var(--shadow);
+      }
+      .message-time {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 4px;
+        padding: 0 8px;
+      }
+      .message.user .message-time {
+        text-align: right;
+      }
+
+      .chat-input-container {
+        padding: 16px;
+        background: var(--card-bg);
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+      }
+      .chat-input {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: var(--bg);
+        font-size: 1rem;
+        color: var(--text);
+        margin-right: 12px;
+      }
+      .chat-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+      }
+      .chat-send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: var(--card-bg);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .chat-send-btn:hover {
+        transform: scale(1.05);
+      }
+      .chat-send-btn:active {
+        transform: scale(0.95);
+      }
+
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--card-bg);
+        color: var(--text);
+        border-bottom-left-radius: 4px;
+        box-shadow: var(--shadow);
+        max-width: 70%;
+        margin-bottom: 16px;
+      }
+      .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+        display: inline-block;
+        margin: 0 2px;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+      .typing-indicator span:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .typing-indicator span:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+      @keyframes typing {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 1.8rem;
+        }
+        .hero-features {
+          display: none;
+        } /* Hide feature badges on mobile */
+        .cards-grid {
+          grid-template-columns: repeat(2, 1fr);
+        } /* Keep 2 cards per row on mobile */
+        .big-mic-shell {
+          width: 150px;
+          height: 150px;
+        }
+        .big-mic {
+          width: 76px;
+          height: 76px;
+          font-size: 22px;
+        }
+        canvas#waveCanvas {
+          height: 180px;
+        }
+        .message {
+          max-width: 85%;
+        }
+      }
+
+      /* Pulse animation for mic */
+      @keyframes micPulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+      .mic-active {
+        animation: micPulse 1.5s infinite;
+      }
+      @media (max-width: 576px) {
+        .cards-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="vtrip-header" id="mainHeader" data-aos="fade-down">
+      <div class="icon-btn" id="menuBtn"><i class="bi bi-list"></i></div>
+      <div style="text-align: center">
+        <div class="vtrip-title">V-Trip</div>
+        <div class="status-pill"><i class="bi bi-circle-fill"></i> Online</div>
+      </div>
+      <div class="icon-btn" id="themeToggle">
+        <i class="bi bi-brightness-high"></i>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main id="mainContent">
+      <section class="hero" data-aos="fade-up">
+        <h1>Tell me <strong>where</strong>, and I'll take you there.</h1>
+        <p>Your personal voice assistant for all travel needs</p>
+      </section>
+
+      <section class="cards-wrap" data-aos="fade-up" data-aos-delay="120">
+        <div class="cards-grid">
+          <div
+            class="card-sample"
+            onclick="handleCardClick('Find a hotel near California?')"
+          >
+            <i class="bi bi-building"></i>
+            <h3>Hotels</h3>
+            <p>Find a hotel near California?</p>
+          </div>
+          <div
+            class="card-sample"
+            onclick="handleCardClick('Find restaurants in New York?')"
+          >
+            <i class="bi bi-geo-alt"></i>
+            <h3>Restaurants</h3>
+            <p>Find restaurants in New York?</p>
+          </div>
+          <div
+            class="card-sample"
+            onclick="handleCardClick('Book a flight to Paris?')"
+          >
+            <i class="bi bi-airplane"></i>
+            <h3>Flights</h3>
+            <p>Book a flight to Paris?</p>
+          </div>
+          <div
+            class="card-sample"
+            onclick="handleCardClick('Show me tourist spots in Tokyo?')"
+          >
+            <i class="bi bi-binoculars"></i>
+            <h3>Tourist Spots</h3>
+            <p>Show me tourist spots in Tokyo?</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Fixed bottom input -->
+    <div class="bottom-bar" id="bottomBar">
+      <div class="input-shell">
+        <div class="mic-floating" id="mainMic" title="Tap to speak">
+          <i class="bi bi-mic-fill" style="font-size: 20px"></i>
+        </div>
+        <input
+          id="bottomInput"
+          class="input-box"
+          placeholder="Ask me about any place..."
+          aria-label="Ask me about any place"
+        />
+        <div class="send-btn" id="sendBtn"><i class="bi bi-send-fill"></i></div>
+      </div>
+    </div>
+
+    <!-- Autocomplete suggestions -->
+    <div class="suggestions-container" id="suggestionsContainer">
+      <!-- Suggestions will be dynamically added here -->
+    </div>
+
+    <!-- Listening overlay (full-screen modal-like) -->
+    <div
+      id="listeningOverlay"
+      class="listening-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      <div class="listening-card" role="document">
+        <div class="listen-header">
+          <h2>Talking to V-Trip</h2>
+          <div class="status">🟢 Online</div>
+        </div>
+
+        <div class="wave-wrap" aria-hidden="true">
+          <canvas id="waveCanvas"></canvas>
+        </div>
+
+        <div class="listening-text">V-Trip is listening…</div>
+
+        <div class="big-mic-shell" aria-hidden="false">
+          <div id="bigMicBtn" class="big-mic" title="Stop listening">
+            <i class="bi bi-mic-fill"></i>
+          </div>
+        </div>
+
+        <div class="listen-actions">
+          <div class="listen-action-btn" id="chatBtn" title="Open chat">
+            <i class="bi bi-chat-dots"></i>
+          </div>
+          <div
+            class="listen-action-btn"
+            id="closeListening"
+            title="Cancel listening"
+          >
+            <i class="bi bi-x-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat overlay -->
+    <div
+      id="chatOverlay"
+      class="chat-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">
+            <i class="bi bi-robot"></i>
+          </div>
+          <div>
+            <div class="chat-title">V-Trip</div>
+            <div class="chat-status">
+              <i class="bi bi-circle-fill"></i> Online
+            </div>
+          </div>
+        </div>
+        <div class="icon-btn" id="closeChatBtn" title="Close chat">
+          <i class="bi bi-x-lg"></i>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="message ai">
+          <div class="message-bubble">
+            Hi there! I'm V-Trip, your personal travel assistant. How can I help
+            you today?
+          </div>
+          <div class="message-time">10:30 AM</div>
+        </div>
+      </div>
+
+      <div class="chat-input-container">
+        <input
+          id="chatInput"
+          class="chat-input"
+          placeholder="Type your message..."
+          aria-label="Type your message"
+        />
+        <div class="chat-send-btn" id="chatSendBtn">
+          <i class="bi bi-send-fill"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+    <script>
+      AOS.init({ duration: 700, once: true });
+
+      // THEME TOGGLE
+      const themeBtn = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        if (theme === "dark") document.body.classList.add("dark");
+        else document.body.classList.remove("dark");
+        localStorage.setItem("vtripTheme", theme);
+        // icon swap
+        const icon = themeBtn.querySelector("i");
+        if (theme === "dark") {
+          icon.className = "bi bi-moon-stars";
+        } else {
+          icon.className = "bi bi-brightness-high";
+        }
+      }
+      const saved =
+        localStorage.getItem("vtripTheme") ||
+        (window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme:dark)").matches
+          ? "dark"
+          : "light");
+      applyTheme(saved);
+      themeBtn.addEventListener("click", () =>
+        applyTheme(document.body.classList.contains("dark") ? "light" : "dark")
+      );
+
+      // Handle card clicks
+      function handleCardClick(text) {
+        document.getElementById("bottomInput").value = text;
+        document.getElementById("bottomInput").focus();
+      }
+
+      // Handle send button
+      document.getElementById("sendBtn").addEventListener("click", function () {
+        const input = document.getElementById("bottomInput");
+        if (input.value.trim()) {
+          // Here you would normally send the request to your backend
+          showNotification(`Processing: "${input.value}"`);
+          input.value = "";
+          hideSuggestions();
+        }
+      });
+
+      // Handle enter key in input
+      document
+        .getElementById("bottomInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            document.getElementById("sendBtn").click();
+          }
+        });
+
+      // Show notification function
+      function showNotification(message) {
+        // Create notification element
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.style.position = "fixed";
+        notification.style.bottom = "100px";
+        notification.style.left = "50%";
+        notification.style.transform = "translateX(-50%)";
+        notification.style.backgroundColor = "var(--accent)";
+        notification.style.color = "white";
+        notification.style.padding = "12px 24px";
+        notification.style.borderRadius = "50px";
+        notification.style.boxShadow = "var(--shadow)";
+        notification.style.zIndex = "3000";
+        notification.style.opacity = "0";
+        notification.style.transition = "opacity 0.3s ease";
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Fade in
+        setTimeout(() => {
+          notification.style.opacity = "1";
+        }, 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          notification.style.opacity = "0";
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 3000);
+      }
+
+      // Autocomplete functionality
+      const suggestions = [
+        { text: "Find hotels in Paris", icon: "bi-building" },
+        { text: "Book flight to New York", icon: "bi-airplane" },
+        { text: "Best restaurants in Tokyo", icon: "bi-geo-alt" },
+        { text: "Tourist attractions in London", icon: "bi-binoculars" },
+        { text: "Car rental in Los Angeles", icon: "bi-car-front" },
+        { text: "Weather forecast in Miami", icon: "bi-cloud-sun" },
+        { text: "Travel visa requirements for India", icon: "bi-passport" },
+        { text: "Currency exchange rates", icon: "bi-currency-exchange" },
+      ];
+
+      const bottomInput = document.getElementById("bottomInput");
+      const suggestionsContainer = document.getElementById(
+        "suggestionsContainer"
+      );
+
+      bottomInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        if (value.length > 0) {
+          const filteredSuggestions = suggestions.filter((s) =>
+            s.text.toLowerCase().includes(value.toLowerCase())
+          );
+
+          if (filteredSuggestions.length > 0) {
+            showSuggestions(filteredSuggestions);
+          } else {
+            hideSuggestions();
+          }
+        } else {
+          hideSuggestions();
+        }
+      });
+
+      function showSuggestions(filteredSuggestions) {
+        suggestionsContainer.innerHTML = "";
+
+        filteredSuggestions.forEach((suggestion) => {
+          const item = document.createElement("div");
+          item.className = "suggestion-item";
+          item.innerHTML = `<i class="bi ${suggestion.icon}"></i> ${suggestion.text}`;
+          item.addEventListener("click", function () {
+            bottomInput.value = suggestion.text;
+            hideSuggestions();
+            bottomInput.focus();
+          });
+          suggestionsContainer.appendChild(item);
+        });
+
+        suggestionsContainer.style.display = "block";
+      }
+
+      function hideSuggestions() {
+        suggestionsContainer.style.display = "none";
+      }
+
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", function (e) {
+        if (
+          !bottomInput.contains(e.target) &&
+          !suggestionsContainer.contains(e.target)
+        ) {
+          hideSuggestions();
+        }
+      });
+
+      // Listening overlay controls
+      const overlay = document.getElementById("listeningOverlay");
+      const mainMic = document.getElementById("mainMic");
+      const closeListening = document.getElementById("closeListening");
+      const bigMicBtn = document.getElementById("bigMicBtn");
+      const chatBtn = document.getElementById("chatBtn");
+
+      let audioCtx = null,
+        analyser = null,
+        sourceNode = null,
+        dataArray = null,
+        rafId = null,
+        micStream = null;
+      const canvas = document.getElementById("waveCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // Resize canvas to device pixel ratio
+      function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.max(300, rect.width * ratio);
+        canvas.height = Math.max(120, rect.height * ratio);
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      // Draw function using analyser data or simulated data
+      let simulate = true;
+      function drawWave() {
+        resizeCanvas();
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerY = height / 2;
+        ctx.clearRect(0, 0, width, height);
+
+        // parameters
+        const layers = 4;
+        for (let layer = 0; layer < layers; layer++) {
+          ctx.beginPath();
+          const hue = 0; // grayscale look
+          const alphaBase = 0.12 - layer * 0.02;
+          ctx.globalAlpha = Math.max(0, alphaBase);
+          ctx.lineWidth = 2 - layer * 0.3;
+          ctx.strokeStyle = document.body.classList.contains("dark")
+            ? "#ffffff"
+            : "#111111";
+          // generate values
+          for (let x = 0; x < width; x++) {
+            const t = x / width;
+            let amp = 0;
+            if (!simulate && analyser && dataArray) {
+              // compute amplitude from analyser -- use frequency bins
+              // map x to index into dataArray
+              const idx = Math.floor(t * dataArray.length);
+              amp =
+                (dataArray[idx] / 255) *
+                (height * 0.25) *
+                (1 + Math.sin(Date.now() / 600 + layer));
+            } else {
+              // simulated
+              const freq = 1.5 + layer * 0.5;
+              amp =
+                Math.sin(
+                  t * Math.PI * 2 * freq +
+                    (Date.now() / 400) * (0.6 + layer * 0.2)
+                ) *
+                (height * (0.04 + layer * 0.02));
+            }
+            const y =
+              centerY +
+              amp * (1 - Math.abs(t - 0.5) * 1.6) * (1 - layer * 0.08);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        rafId = requestAnimationFrame(drawWave);
+      }
+
+      // Start microphone capture & analyser
+      async function startListening() {
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden"; // prevent background scroll
+        bigMicBtn.classList.add("ringing");
+
+        // try to get microphone
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          sourceNode = audioCtx.createMediaStreamSource(micStream);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          sourceNode.connect(analyser);
+          const bufferLen = analyser.frequencyBinCount;
+          dataArray = new Uint8Array(bufferLen);
+          simulate = false;
+        } catch (err) {
+          // permission denied or not available — fallback to simulated waves
+          simulate = true;
+          console.warn("Microphone not available, using simulated wave.", err);
+        }
+        if (rafId) cancelAnimationFrame(rafId);
+        drawWave();
+
+        // if using analyser, update data array periodically
+        if (!simulate && analyser) {
+          (function updateData() {
+            analyser.getByteFrequencyData(dataArray);
+            // smooth or normalize could be applied here
+            rafId = requestAnimationFrame(updateData);
+          })();
+        }
+      }
+
+      // Stop microphone + cleanup
+      function stopListening() {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = ""; // restore scroll
+        bigMicBtn.classList.remove("ringing");
+
+        // stop animation
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // stop audio tracks
+        if (micStream) {
+          micStream.getTracks().forEach((t) => t.stop());
+          micStream = null;
+        }
+        if (audioCtx) {
+          try {
+            audioCtx.close();
+          } catch (e) {}
+          audioCtx = null;
+          analyser = null;
+          sourceNode = null;
+          dataArray = null;
+        }
+      }
+
+      // Chat functionality
+      const chatOverlay = document.getElementById("chatOverlay");
+      const chatMessages = document.getElementById("chatMessages");
+      const chatInput = document.getElementById("chatInput");
+      const chatSendBtn = document.getElementById("chatSendBtn");
+      const closeChatBtn = document.getElementById("closeChatBtn");
+
+      // AI responses
+      const aiResponses = [
+        "I'd be happy to help you with that! Let me search for the best options.",
+        "That's a great question! Based on your preferences, I recommend...",
+        "I found several options that match your criteria. Here are the top picks...",
+        "For your trip, I suggest considering these factors: location, price, and reviews.",
+        "Let me check availability for you. One moment please...",
+        "Based on current trends, this destination is perfect for your travel style.",
+        "I've found some great deals for you! Would you like more details?",
+      ];
+
+      function openChat() {
+        // Hide main UI elements
+        document.getElementById("mainHeader").style.display = "none";
+        document.getElementById("mainContent").style.display = "none";
+        document.getElementById("bottomBar").style.display = "none";
+
+        // Show chat overlay
+        chatOverlay.classList.add("show");
+        chatOverlay.setAttribute("aria-hidden", "false");
+
+        // Focus on input
+        setTimeout(() => chatInput.focus(), 300);
+      }
+
+      function closeChat() {
+        // Show main UI elements
+        document.getElementById("mainHeader").style.display = "";
+        document.getElementById("mainContent").style.display = "";
+        document.getElementById("bottomBar").style.display = "";
+
+        // Hide chat overlay
+        chatOverlay.classList.remove("show");
+        chatOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        const userMessage = document.createElement("div");
+        userMessage.className = "message user";
+        const now = new Date();
+        const time = now.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+        userMessage.innerHTML = `
+      <div class="message-bubble">${message}</div>
+      <div class="message-time">${time}</div>
+    `;
+        chatMessages.appendChild(userMessage);
+
+        // Clear input
+        chatInput.value = "";
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Show typing indicator
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "message ai typing-indicator";
+        typingIndicator.innerHTML = `
+      <span></span>
+      <span></span>
+      <span></span>
+    `;
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Simulate AI response
+        setTimeout(() => {
+          // Remove typing indicator
+          chatMessages.removeChild(typingIndicator);
+
+          // Add AI response
+          const aiMessage = document.createElement("div");
+          aiMessage.className = "message ai";
+          const response =
+            aiResponses[Math.floor(Math.random() * aiResponses.length)];
+          aiMessage.innerHTML = `
+        <div class="message-bubble">${response}</div>
+        <div class="message-time">${time}</div>
+      `;
+          chatMessages.appendChild(aiMessage);
+
+          // Scroll to bottom
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1500);
+      }
+
+      // Event wiring
+      mainMic.addEventListener("click", startListening);
+      closeListening.addEventListener("click", stopListening);
+      bigMicBtn.addEventListener("click", stopListening);
+      chatBtn.addEventListener("click", openChat);
+      closeChatBtn.addEventListener("click", closeChat);
+      chatSendBtn.addEventListener("click", sendMessage);
+
+      chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      // Ensure overlay element covers entire viewport for canvas sizing
+      function showOverlayIfActive() {
+        // re-resize canvas if overlay shown
+        if (overlay.classList.contains("show")) resizeCanvas();
+      }
+      window.addEventListener("resize", showOverlayIfActive);
+
+      // Make sure canvas sizes initially
+      resizeCanvas();
+
+      // Accessibility: close overlay on ESC
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (overlay.classList.contains("show")) stopListening();
+          if (chatOverlay.classList.contains("show")) closeChat();
+        }
+      });
+
+      // Menu button functionality
+      document.getElementById("menuBtn").addEventListener("click", function () {
+        showNotification("Menu feature coming soon!");
+      });
+    </script>
+  </body>
+</html>
