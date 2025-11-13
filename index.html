@@ -5,25 +5,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>V-Trip — Voice Assistant</title>
 
-    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Montserrat:wght@600;700&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Bootstrap 5 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
 
-    <!-- Bootstrap Icons -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
       rel="stylesheet"
     />
 
-    <!-- AOS (Animate on Scroll) -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
       rel="stylesheet"
@@ -39,6 +35,8 @@
         --accent-light: #e9ecef;
         --shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
         --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.12);
+        --sidebar-width: 280px;
+        --primary-color: #4285f4;
       }
       body.dark {
         --bg: #121416;
@@ -62,7 +60,6 @@
         -moz-osx-font-smoothing: grayscale;
       }
 
-      /* Header */
       .vtrip-header {
         position: fixed;
         top: 0;
@@ -116,7 +113,6 @@
         margin-right: 4px;
       }
 
-      /* Main area */
       main {
         padding: 90px 20px 150px;
         min-height: 100vh;
@@ -165,7 +161,6 @@
         color: var(--accent);
       }
 
-      /* Popular cards */
       .cards-wrap {
         margin-top: 40px;
         width: 100%;
@@ -214,7 +209,6 @@
         font-size: 0.95rem;
       }
 
-      /* Fixed bottom input bar */
       .bottom-bar {
         position: fixed;
         left: 0;
@@ -301,7 +295,6 @@
         transform: translateY(-50%) scale(0.95);
       }
 
-      /* Autocomplete suggestions */
       .suggestions-container {
         position: fixed;
         bottom: 80px;
@@ -336,7 +329,6 @@
         color: var(--muted);
       }
 
-      /* Listening overlay - Full screen */
       .listening-overlay {
         position: fixed;
         inset: 0;
@@ -387,7 +379,6 @@
         margin-right: 6px;
       }
 
-      /* Canvas area and text */
       .wave-wrap {
         width: 100%;
         max-width: 760px;
@@ -412,7 +403,6 @@
         margin-bottom: 28px;
       }
 
-      /* Big mic central */
       .big-mic-shell {
         position: relative;
         border-radius: 50%;
@@ -456,7 +446,6 @@
         }
       }
 
-      /* small bottom icons left & right */
       .listen-actions {
         width: 100%;
         max-width: 760px;
@@ -489,7 +478,6 @@
         transform: scale(0.95);
       }
 
-      /* Chat interface */
       .chat-overlay {
         position: fixed;
         inset: 0;
@@ -666,17 +654,393 @@
         }
       }
 
-      /* Responsive adjustments */
+      /* Sidebar Styles - Matching the image exactly */
+      .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1500;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      
+      .sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-width);
+        height: 100%;
+        background: var(--card-bg);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1600;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      
+      .sidebar-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--text);
+      }
+      
+      .sidebar-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-light);
+        cursor: pointer;
+        color: var(--accent);
+        transition: all 0.2s ease;
+      }
+      
+      .sidebar-close:hover {
+        background: var(--accent);
+        color: var(--card-bg);
+      }
+      
+      .sidebar-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+      }
+      
+      .trip-list {
+        flex: 1;
+        padding: 16px 0;
+      }
+      
+      .trip-item {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      
+      .trip-item:hover {
+        background: var(--accent-light);
+      }
+      
+      .trip-item:last-child {
+        border-bottom: none;
+      }
+      
+      .trip-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-light);
+        margin-right: 16px;
+      }
+      
+      .trip-icon i {
+        color: var(--accent);
+        font-size: 1.2rem;
+      }
+      
+      .trip-details {
+        flex: 1;
+      }
+      
+      .trip-title {
+        font-weight: 500;
+        font-size: 0.95rem;
+        color: var(--text);
+        margin: 0 0 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .trip-subtitle {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0;
+      }
+      
+      .sidebar-footer {
+        padding: 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+      }
+      
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--card-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+      }
+      
+      .user-info h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text);
+      }
+      
+      .user-info p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      /* Explore Page Styles */
+      .explore-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        flex-direction: column;
+        background: var(--bg);
+        transition: opacity 0.3s ease;
+      }
+      .explore-overlay.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .explore-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: var(--card-bg);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      .explore-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--text);
+      }
+
+      .explore-search {
+        flex: 1;
+        margin: 0 15px;
+        position: relative;
+      }
+
+      .explore-search-input {
+        width: 100%;
+        padding: 8px 15px 8px 40px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: var(--bg);
+        font-size: 0.9rem;
+        color: var(--text);
+      }
+
+      .explore-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+      }
+
+      .explore-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+      }
+
+      .explore-categories {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+      }
+
+      .explore-category {
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: var(--accent-light);
+        color: var(--text);
+        font-size: 0.9rem;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .explore-category.active {
+        background: var(--accent);
+        color: var(--card-bg);
+      }
+
+      .explore-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3px;
+        margin-bottom: 20px;
+      }
+
+      .explore-item {
+        position: relative;
+        padding-bottom: 100%;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .explore-item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .explore-item:hover img {
+        transform: scale(1.05);
+      }
+
+      .explore-item-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        padding: 10px;
+        color: white;
+        font-size: 0.8rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .explore-item:hover .explore-item-overlay {
+        opacity: 1;
+      }
+
+      .explore-places {
+        margin-top: 20px;
+      }
+
+      .explore-section-title {
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        color: var(--text);
+      }
+
+      .explore-places-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .explore-place-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .explore-place-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+      }
+
+      .explore-place-image {
+        height: 120px;
+        overflow: hidden;
+      }
+
+      .explore-place-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .explore-place-info {
+        padding: 12px;
+      }
+
+      .explore-place-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+        color: var(--text);
+      }
+
+      .explore-place-location {
+        display: flex;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+
+      .explore-place-location i {
+        margin-right: 5px;
+        font-size: 0.7rem;
+      }
+
+      .explore-place-rating {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+        font-size: 0.8rem;
+      }
+
+      .explore-place-rating i {
+        color: #ffc107;
+        margin-right: 3px;
+      }
+
       @media (max-width: 768px) {
         .hero h1 {
           font-size: 1.8rem;
         }
         .hero-features {
           display: none;
-        } /* Hide feature badges on mobile */
+        }
         .cards-grid {
-          grid-template-columns: repeat(2, 1fr);
-        } /* Keep 2 cards per row on mobile */
+          grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns for mobile */
+        }
         .big-mic-shell {
           width: 150px;
           height: 150px;
@@ -692,9 +1056,38 @@
         .message {
           max-width: 85%;
         }
+        .sidebar {
+          width: 80%;
+          max-width: var(--sidebar-width);
+        }
+        .explore-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .explore-places-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
-      /* Pulse animation for mic */
+      @media (max-width: 576px) {
+        .cards-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns for small mobile */
+          gap: 10px;
+        }
+        .card-sample {
+          padding: 15px 10px;
+        }
+        .card-sample i {
+          font-size: 1.5rem;
+        }
+        .card-sample h3 {
+          font-size: 0.9rem;
+        }
+        .card-sample p {
+          font-size: 0.8rem;
+        }
+      }
+
       @keyframes micPulse {
         0% {
           box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
@@ -709,17 +1102,9 @@
       .mic-active {
         animation: micPulse 1.5s infinite;
       }
-      @media (max-width: 576px) {
-        .cards-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 20px;
-        }
-      }
     </style>
   </head>
   <body>
-    <!-- HEADER -->
     <header class="vtrip-header" id="mainHeader" data-aos="fade-down">
       <div class="icon-btn" id="menuBtn"><i class="bi bi-list"></i></div>
       <div style="text-align: center">
@@ -731,7 +1116,73 @@
       </div>
     </header>
 
-    <!-- MAIN -->
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar - Exact match to the image -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Trip</h2>
+        <div class="sidebar-close" id="sidebarClose">
+          <i class="bi bi-x-lg"></i>
+        </div>
+      </div>
+      
+      <div class="sidebar-content">
+        <div class="trip-list">
+          <div class="trip-item">
+            <div class="trip-icon">
+              <i class="bi bi-airplane-fill"></i>
+            </div>
+            <div class="trip-details">
+              <h3 class="trip-title">Delhi to Mumbai Flight booki...</h3>
+              <p class="trip-subtitle">Dec 15, 2023</p>
+            </div>
+          </div>
+          
+          <div class="trip-item">
+            <div class="trip-icon">
+              <i class="bi bi-bus-front-fill"></i>
+            </div>
+            <div class="trip-details">
+              <h3 class="trip-title">Mumbai to Lucknow Bus Boo...</h3>
+              <p class="trip-subtitle">Nov 28, 2023</p>
+            </div>
+          </div>
+          
+          <div class="trip-item">
+            <div class="trip-icon">
+              <i class="bi bi-globe-americas"></i>
+            </div>
+            <div class="trip-details">
+              <h3 class="trip-title">Delhi to Japan Trip plan with...</h3>
+              <p class="trip-subtitle">Oct 10, 2023</p>
+            </div>
+          </div>
+          
+          <div class="trip-item">
+            <div class="trip-icon">
+              <i class="bi bi-bus-front-fill"></i>
+            </div>
+            <div class="trip-details">
+              <h3 class="trip-title">Amroha to Meerut Bus Trip p...</h3>
+              <p class="trip-subtitle">Sep 5, 2023</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <div class="user-avatar">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="user-info">
+          <h4>Shivam Thakur</h4>
+          <p>Premium Member</p>
+        </div>
+      </div>
+    </aside>
+
     <main id="mainContent">
       <section class="hero" data-aos="fade-up">
         <h1>Tell me <strong>where</strong>, and I'll take you there.</h1>
@@ -772,11 +1223,18 @@
             <h3>Tourist Spots</h3>
             <p>Show me tourist spots in Tokyo?</p>
           </div>
+          <div
+            class="card-sample"
+            onclick="openExplore()"
+          >
+            <i class="bi bi-compass"></i>
+            <h3>Explore</h3>
+            <p>Discover new destinations</p>
+          </div>
         </div>
       </section>
     </main>
 
-    <!-- Fixed bottom input -->
     <div class="bottom-bar" id="bottomBar">
       <div class="input-shell">
         <div class="mic-floating" id="mainMic" title="Tap to speak">
@@ -792,12 +1250,8 @@
       </div>
     </div>
 
-    <!-- Autocomplete suggestions -->
-    <div class="suggestions-container" id="suggestionsContainer">
-      <!-- Suggestions will be dynamically added here -->
-    </div>
+    <div class="suggestions-container" id="suggestionsContainer"></div>
 
-    <!-- Listening overlay (full-screen modal-like) -->
     <div
       id="listeningOverlay"
       class="listening-overlay"
@@ -838,7 +1292,6 @@
       </div>
     </div>
 
-    <!-- Chat overlay -->
     <div
       id="chatOverlay"
       class="chat-overlay"
@@ -886,20 +1339,178 @@
       </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Explore Overlay -->
+    <div
+      id="exploreOverlay"
+      class="explore-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      <div class="explore-header">
+        <div class="icon-btn" id="closeExploreBtn" title="Close explore">
+          <i class="bi bi-arrow-left"></i>
+        </div>
+        <h2 class="explore-title">Explore</h2>
+        <div class="explore-search">
+          <i class="bi bi-search explore-search-icon"></i>
+          <input
+            type="text"
+            class="explore-search-input"
+            placeholder="Search destinations..."
+          />
+        </div>
+      </div>
+
+      <div class="explore-content">
+        <div class="explore-categories">
+          <div class="explore-category active">For You</div>
+          <div class="explore-category">Trending</div>
+          <div class="explore-category">Beaches</div>
+          <div class="explore-category">Mountains</div>
+          <div class="explore-category">Cities</div>
+          <div class="explore-category">Adventure</div>
+        </div>
+
+        <div class="explore-grid">
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/paris/300/300.jpg" alt="Paris">
+            <div class="explore-item-overlay">Paris, France</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/bali/300/300.jpg" alt="Bali">
+            <div class="explore-item-overlay">Bali, Indonesia</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/tokyo/300/300.jpg" alt="Tokyo">
+            <div class="explore-item-overlay">Tokyo, Japan</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/newyork/300/300.jpg" alt="New York">
+            <div class="explore-item-overlay">New York, USA</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/santorini/300/300.jpg" alt="Santorini">
+            <div class="explore-item-overlay">Santorini, Greece</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/dubai/300/300.jpg" alt="Dubai">
+            <div class="explore-item-overlay">Dubai, UAE</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/london/300/300.jpg" alt="London">
+            <div class="explore-item-overlay">London, UK</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/rome/300/300.jpg" alt="Rome">
+            <div class="explore-item-overlay">Rome, Italy</div>
+          </div>
+          <div class="explore-item">
+            <img src="https://picsum.photos/seed/sydney/300/300.jpg" alt="Sydney">
+            <div class="explore-item-overlay">Sydney, Australia</div>
+          </div>
+        </div>
+
+        <div class="explore-places">
+          <h3 class="explore-section-title">Popular Destinations</h3>
+          <div class="explore-places-grid">
+            <div class="explore-place-card">
+              <div class="explore-place-image">
+                <img src="https://picsum.photos/seed/maldives/400/200.jpg" alt="Maldives">
+              </div>
+              <div class="explore-place-info">
+                <div class="explore-place-name">Maldives</div>
+                <div class="explore-place-location">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  Indian Ocean
+                </div>
+                <div class="explore-place-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.9</span>
+                </div>
+              </div>
+            </div>
+            <div class="explore-place-card">
+              <div class="explore-place-image">
+                <img src="https://picsum.photos/seed/iceland/400/200.jpg" alt="Iceland">
+              </div>
+              <div class="explore-place-info">
+                <div class="explore-place-name">Iceland</div>
+                <div class="explore-place-location">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  North Atlantic
+                </div>
+                <div class="explore-place-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-half"></i>
+                  <span>4.7</span>
+                </div>
+              </div>
+            </div>
+            <div class="explore-place-card">
+              <div class="explore-place-image">
+                <img src="https://picsum.photos/seed/peru/400/200.jpg" alt="Peru">
+              </div>
+              <div class="explore-place-info">
+                <div class="explore-place-name">Peru</div>
+                <div class="explore-place-location">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  South America
+                </div>
+                <div class="explore-place-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star"></i>
+                  <span>4.5</span>
+                </div>
+              </div>
+            </div>
+            <div class="explore-place-card">
+              <div class="explore-place-image">
+                <img src="https://picsum.photos/seed/morocco/400/200.jpg" alt="Morocco">
+              </div>
+              <div class="explore-place-info">
+                <div class="explore-place-name">Morocco</div>
+                <div class="explore-place-location">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  North Africa
+                </div>
+                <div class="explore-place-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-half"></i>
+                  <span>4.6</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
     <script>
       AOS.init({ duration: 700, once: true });
 
-      // THEME TOGGLE
       const themeBtn = document.getElementById("themeToggle");
       function applyTheme(theme) {
         if (theme === "dark") document.body.classList.add("dark");
         else document.body.classList.remove("dark");
         localStorage.setItem("vtripTheme", theme);
-        // icon swap
+
         const icon = themeBtn.querySelector("i");
         if (theme === "dark") {
           icon.className = "bi bi-moon-stars";
@@ -918,24 +1529,20 @@
         applyTheme(document.body.classList.contains("dark") ? "light" : "dark")
       );
 
-      // Handle card clicks
       function handleCardClick(text) {
         document.getElementById("bottomInput").value = text;
         document.getElementById("bottomInput").focus();
       }
 
-      // Handle send button
       document.getElementById("sendBtn").addEventListener("click", function () {
         const input = document.getElementById("bottomInput");
         if (input.value.trim()) {
-          // Here you would normally send the request to your backend
           showNotification(`Processing: "${input.value}"`);
           input.value = "";
           hideSuggestions();
         }
       });
 
-      // Handle enter key in input
       document
         .getElementById("bottomInput")
         .addEventListener("keypress", function (e) {
@@ -944,9 +1551,7 @@
           }
         });
 
-      // Show notification function
       function showNotification(message) {
-        // Create notification element
         const notification = document.createElement("div");
         notification.className = "notification";
         notification.style.position = "fixed";
@@ -965,12 +1570,10 @@
 
         document.body.appendChild(notification);
 
-        // Fade in
         setTimeout(() => {
           notification.style.opacity = "1";
         }, 10);
 
-        // Remove after 3 seconds
         setTimeout(() => {
           notification.style.opacity = "0";
           setTimeout(() => {
@@ -979,7 +1582,6 @@
         }, 3000);
       }
 
-      // Autocomplete functionality
       const suggestions = [
         { text: "Find hotels in Paris", icon: "bi-building" },
         { text: "Book flight to New York", icon: "bi-airplane" },
@@ -1036,7 +1638,6 @@
         suggestionsContainer.style.display = "none";
       }
 
-      // Hide suggestions when clicking outside
       document.addEventListener("click", function (e) {
         if (
           !bottomInput.contains(e.target) &&
@@ -1046,7 +1647,6 @@
         }
       });
 
-      // Listening overlay controls
       const overlay = document.getElementById("listeningOverlay");
       const mainMic = document.getElementById("mainMic");
       const closeListening = document.getElementById("closeListening");
@@ -1062,7 +1662,6 @@
       const canvas = document.getElementById("waveCanvas");
       const ctx = canvas.getContext("2d");
 
-      // Resize canvas to device pixel ratio
       function resizeCanvas() {
         const ratio = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
@@ -1071,7 +1670,6 @@
       }
       window.addEventListener("resize", resizeCanvas);
 
-      // Draw function using analyser data or simulated data
       let simulate = true;
       function drawWave() {
         resizeCanvas();
@@ -1080,31 +1678,27 @@
         const centerY = height / 2;
         ctx.clearRect(0, 0, width, height);
 
-        // parameters
         const layers = 4;
         for (let layer = 0; layer < layers; layer++) {
           ctx.beginPath();
-          const hue = 0; // grayscale look
+          const hue = 0;
           const alphaBase = 0.12 - layer * 0.02;
           ctx.globalAlpha = Math.max(0, alphaBase);
           ctx.lineWidth = 2 - layer * 0.3;
           ctx.strokeStyle = document.body.classList.contains("dark")
             ? "#ffffff"
             : "#111111";
-          // generate values
+
           for (let x = 0; x < width; x++) {
             const t = x / width;
             let amp = 0;
             if (!simulate && analyser && dataArray) {
-              // compute amplitude from analyser -- use frequency bins
-              // map x to index into dataArray
               const idx = Math.floor(t * dataArray.length);
               amp =
                 (dataArray[idx] / 255) *
                 (height * 0.25) *
                 (1 + Math.sin(Date.now() / 600 + layer));
             } else {
-              // simulated
               const freq = 1.5 + layer * 0.5;
               amp =
                 Math.sin(
@@ -1125,14 +1719,12 @@
         rafId = requestAnimationFrame(drawWave);
       }
 
-      // Start microphone capture & analyser
       async function startListening() {
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
-        document.body.style.overflow = "hidden"; // prevent background scroll
+        document.body.style.overflow = "hidden";
         bigMicBtn.classList.add("ringing");
 
-        // try to get microphone
         try {
           micStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
@@ -1146,36 +1738,31 @@
           dataArray = new Uint8Array(bufferLen);
           simulate = false;
         } catch (err) {
-          // permission denied or not available — fallback to simulated waves
           simulate = true;
           console.warn("Microphone not available, using simulated wave.", err);
         }
         if (rafId) cancelAnimationFrame(rafId);
         drawWave();
 
-        // if using analyser, update data array periodically
         if (!simulate && analyser) {
           (function updateData() {
             analyser.getByteFrequencyData(dataArray);
-            // smooth or normalize could be applied here
+
             rafId = requestAnimationFrame(updateData);
           })();
         }
       }
 
-      // Stop microphone + cleanup
       function stopListening() {
         overlay.classList.remove("show");
         overlay.setAttribute("aria-hidden", "true");
-        document.body.style.overflow = ""; // restore scroll
+        document.body.style.overflow = "";
         bigMicBtn.classList.remove("ringing");
 
-        // stop animation
         if (rafId) cancelAnimationFrame(rafId);
         rafId = null;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // stop audio tracks
         if (micStream) {
           micStream.getTracks().forEach((t) => t.stop());
           micStream = null;
@@ -1191,14 +1778,12 @@
         }
       }
 
-      // Chat functionality
       const chatOverlay = document.getElementById("chatOverlay");
       const chatMessages = document.getElementById("chatMessages");
       const chatInput = document.getElementById("chatInput");
       const chatSendBtn = document.getElementById("chatSendBtn");
       const closeChatBtn = document.getElementById("closeChatBtn");
 
-      // AI responses
       const aiResponses = [
         "I'd be happy to help you with that! Let me search for the best options.",
         "That's a great question! Based on your preferences, I recommend...",
@@ -1210,26 +1795,21 @@
       ];
 
       function openChat() {
-        // Hide main UI elements
         document.getElementById("mainHeader").style.display = "none";
         document.getElementById("mainContent").style.display = "none";
         document.getElementById("bottomBar").style.display = "none";
 
-        // Show chat overlay
         chatOverlay.classList.add("show");
         chatOverlay.setAttribute("aria-hidden", "false");
 
-        // Focus on input
         setTimeout(() => chatInput.focus(), 300);
       }
 
       function closeChat() {
-        // Show main UI elements
         document.getElementById("mainHeader").style.display = "";
         document.getElementById("mainContent").style.display = "";
         document.getElementById("bottomBar").style.display = "";
 
-        // Hide chat overlay
         chatOverlay.classList.remove("show");
         chatOverlay.setAttribute("aria-hidden", "true");
       }
@@ -1238,7 +1818,6 @@
         const message = chatInput.value.trim();
         if (!message) return;
 
-        // Add user message
         const userMessage = document.createElement("div");
         userMessage.className = "message user";
         const now = new Date();
@@ -1253,13 +1832,10 @@
     `;
         chatMessages.appendChild(userMessage);
 
-        // Clear input
         chatInput.value = "";
 
-        // Scroll to bottom
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Show typing indicator
         const typingIndicator = document.createElement("div");
         typingIndicator.className = "message ai typing-indicator";
         typingIndicator.innerHTML = `
@@ -1270,12 +1846,9 @@
         chatMessages.appendChild(typingIndicator);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Simulate AI response
         setTimeout(() => {
-          // Remove typing indicator
           chatMessages.removeChild(typingIndicator);
 
-          // Add AI response
           const aiMessage = document.createElement("div");
           aiMessage.className = "message ai";
           const response =
@@ -1286,12 +1859,10 @@
       `;
           chatMessages.appendChild(aiMessage);
 
-          // Scroll to bottom
           chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 1500);
       }
 
-      // Event wiring
       mainMic.addEventListener("click", startListening);
       closeListening.addEventListener("click", stopListening);
       bigMicBtn.addEventListener("click", stopListening);
@@ -1305,27 +1876,116 @@
         }
       });
 
-      // Ensure overlay element covers entire viewport for canvas sizing
       function showOverlayIfActive() {
-        // re-resize canvas if overlay shown
         if (overlay.classList.contains("show")) resizeCanvas();
       }
       window.addEventListener("resize", showOverlayIfActive);
 
-      // Make sure canvas sizes initially
       resizeCanvas();
 
-      // Accessibility: close overlay on ESC
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           if (overlay.classList.contains("show")) stopListening();
           if (chatOverlay.classList.contains("show")) closeChat();
+          if (sidebar.classList.contains("show")) closeSidebar();
+          if (exploreOverlay.classList.contains("show")) closeExplore();
         }
       });
 
-      // Menu button functionality
-      document.getElementById("menuBtn").addEventListener("click", function () {
-        showNotification("Menu feature coming soon!");
+      // Sidebar functionality
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
+      const menuBtn = document.getElementById("menuBtn");
+      const sidebarClose = document.getElementById("sidebarClose");
+      
+      function openSidebar() {
+        sidebar.classList.add("show");
+        sidebarOverlay.classList.add("show");
+        document.body.style.overflow = "hidden";
+      }
+      
+      function closeSidebar() {
+        sidebar.classList.remove("show");
+        sidebarOverlay.classList.remove("show");
+        document.body.style.overflow = "";
+      }
+      
+      menuBtn.addEventListener("click", openSidebar);
+      sidebarClose.addEventListener("click", closeSidebar);
+      sidebarOverlay.addEventListener("click", closeSidebar);
+      
+      // Handle trip items
+      const tripItems = document.querySelectorAll(".trip-item");
+      tripItems.forEach(item => {
+        item.addEventListener("click", function() {
+          const tripName = this.querySelector(".trip-title").textContent;
+          showNotification(`Opening trip: ${tripName}`);
+          
+          // Close sidebar on mobile after selection
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Explore functionality
+      const exploreOverlay = document.getElementById("exploreOverlay");
+      const closeExploreBtn = document.getElementById("closeExploreBtn");
+      
+      function openExplore() {
+        document.getElementById("mainHeader").style.display = "none";
+        document.getElementById("mainContent").style.display = "none";
+        document.getElementById("bottomBar").style.display = "none";
+
+        exploreOverlay.classList.add("show");
+        exploreOverlay.setAttribute("aria-hidden", "false");
+      }
+      
+      function closeExplore() {
+        document.getElementById("mainHeader").style.display = "";
+        document.getElementById("mainContent").style.display = "";
+        document.getElementById("bottomBar").style.display = "";
+
+        exploreOverlay.classList.remove("show");
+        exploreOverlay.setAttribute("aria-hidden", "true");
+      }
+      
+      closeExploreBtn.addEventListener("click", closeExplore);
+      
+      // Handle explore categories
+      const exploreCategories = document.querySelectorAll(".explore-category");
+      exploreCategories.forEach(category => {
+        category.addEventListener("click", function() {
+          // Remove active class from all categories
+          exploreCategories.forEach(cat => {
+            cat.classList.remove("active");
+          });
+          
+          // Add active class to clicked category
+          this.classList.add("active");
+          
+          // Show notification for demo purposes
+          const categoryName = this.textContent;
+          showNotification(`Showing ${categoryName} destinations`);
+        });
+      });
+      
+      // Handle explore items
+      const exploreItems = document.querySelectorAll(".explore-item");
+      exploreItems.forEach(item => {
+        item.addEventListener("click", function() {
+          const destinationName = this.querySelector(".explore-item-overlay").textContent;
+          showNotification(`Opening ${destinationName}`);
+        });
+      });
+      
+      // Handle explore place cards
+      const explorePlaceCards = document.querySelectorAll(".explore-place-card");
+      explorePlaceCards.forEach(card => {
+        card.addEventListener("click", function() {
+          const placeName = this.querySelector(".explore-place-name").textContent;
+          showNotification(`Opening details for ${placeName}`);
+        });
       });
     </script>
   </body>
