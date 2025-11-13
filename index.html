@@ -175,7 +175,7 @@
       }
       .cards-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns for all screen sizes */
         gap: 20px;
       }
       .card-sample {
@@ -654,7 +654,7 @@
         }
       }
 
-      /* Sidebar Styles - Matching the image exactly */
+      /* Sidebar Styles - Matching image exactly */
       .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -1039,7 +1039,8 @@
           display: none;
         }
         .cards-grid {
-          grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns for mobile */
+          grid-template-columns: repeat(3, 1fr); /* Keep 3 columns for tablet */
+          gap: 15px;
         }
         .big-mic-shell {
           width: 150px;
@@ -1071,11 +1072,11 @@
       @media (max-width: 576px) {
         .cards-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns for small mobile */
-          gap: 10px;
+          grid-template-columns: repeat(3, 1fr); /* Keep 3 columns for mobile */
+          gap: 12px;
         }
         .card-sample {
-          padding: 15px 10px;
+          padding: 18px 10px;
         }
         .card-sample i {
           font-size: 1.5rem;
@@ -1119,7 +1120,7 @@
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
-    <!-- Sidebar - Exact match to the image -->
+    <!-- Sidebar - Exact match to image -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h2 class="sidebar-title">Trip</h2>
@@ -1230,6 +1231,14 @@
             <i class="bi bi-compass"></i>
             <h3>Explore</h3>
             <p>Discover new destinations</p>
+          </div>
+          <div
+            class="card-sample"
+            onclick="handleCardClick('Find car rentals near me?')"
+          >
+            <i class="bi bi-car-front"></i>
+            <h3>Car Rental</h3>
+            <p>Find car rentals near me?</p>
           </div>
         </div>
       </section>
@@ -1785,9 +1794,9 @@
       const closeChatBtn = document.getElementById("closeChatBtn");
 
       const aiResponses = [
-        "I'd be happy to help you with that! Let me search for the best options.",
+        "I'd be happy to help you with that! Let me search for best options.",
         "That's a great question! Based on your preferences, I recommend...",
-        "I found several options that match your criteria. Here are the top picks...",
+        "I found several options that match your criteria. Here are top picks...",
         "For your trip, I suggest considering these factors: location, price, and reviews.",
         "Let me check availability for you. One moment please...",
         "Based on current trends, this destination is perfect for your travel style.",
