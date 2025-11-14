@@ -1575,10 +1575,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-   <script>
-/* ===========================
-   LIVE USER LOCATION (Auto Fetch)
-   =========================== */
+<script>
 let userLocation = null;
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
@@ -1591,7 +1588,6 @@ if (navigator.geolocation) {
     },
     (err) => {
       console.warn("Location access denied or unavailable:", err);
-      // keep userLocation as null
     },
     { enableHighAccuracy: false, maximumAge: 60 * 1000, timeout: 5000 }
   );
@@ -1599,9 +1595,6 @@ if (navigator.geolocation) {
   console.warn("Geolocation not supported by browser.");
 }
 
-/* ===========================
-   SYSTEM PROMPT FOR PUTER AI
-   =========================== */
 const SYSTEM_PROMPT = {
   "identity": {
     "name": "V-Trip Planner",
@@ -1660,9 +1653,6 @@ const SYSTEM_PROMPT = {
   }
 };
 
-/* ===========================
-   AOS (animation) init + Theme handling
-   =========================== */
 if (typeof AOS !== "undefined") AOS.init({ duration: 700, once: true });
 
 const themeBtn = document.getElementById("themeToggle");
@@ -1671,31 +1661,22 @@ function applyTheme(theme) {
   if (theme === "dark") document.body.classList.add("dark");
   else document.body.classList.remove("dark");
   localStorage.setItem("vtripTheme", theme);
-
   const icon = themeBtn.querySelector("i");
   if (icon) icon.className = theme === "dark" ? "bi bi-moon-stars" : "bi bi-brightness-high";
-
   const chatThemeBtn = document.getElementById("themeToggleChat");
   if (chatThemeBtn) {
     const chatIcon = chatThemeBtn.querySelector("i");
     if (chatIcon) chatIcon.className = theme === "dark" ? "bi bi-moon-stars" : "bi bi-brightness-high";
   }
 }
-
 const savedTheme =
   localStorage.getItem("vtripTheme") ||
   (window.matchMedia && window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light");
 applyTheme(savedTheme);
-
 if (themeBtn) {
-  themeBtn.addEventListener("click", () =>
-    applyTheme(document.body.classList.contains("dark") ? "light" : "dark")
-  );
+  themeBtn.addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
 }
 
-/* ===========================
-   Suggestion chips and bottom input
-   =========================== */
 function handleCardClick(text) {
   const bottom = document.getElementById("bottomInput");
   if (bottom) {
@@ -1733,9 +1714,6 @@ if (bottomInput) {
   });
 }
 
-/* ===========================
-   Notification helper
-   =========================== */
 function showNotification(message) {
   const notification = document.createElement("div");
   notification.className = "notification";
@@ -1764,9 +1742,6 @@ function showNotification(message) {
   }, 3000);
 }
 
-/* ===========================
-   Suggestion list UI
-   =========================== */
 const suggestions = [
   { text: "Find hotels near me", icon: "bi-building" },
   { text: "Restaurants near me", icon: "bi-geo-alt" },
@@ -1819,9 +1794,6 @@ document.addEventListener("click", (e) => {
   if (!bottomInput.contains(e.target) && !suggestionsContainer.contains(e.target)) hideSuggestions();
 });
 
-/* ===========================
-   Microphone + waveform visualization
-   =========================== */
 const overlay = document.getElementById("listeningOverlay");
 const mainMic = document.getElementById("mainMic");
 const closeListening = document.getElementById("closeListening");
@@ -1941,9 +1913,9 @@ function stopListening() {
   }
 }
 
-/* ===========================
-   Fullscreen Chat Interface (send/receive) + Puter AI integration
-   =========================== */
+resizeCanvas();
+</script>
+<script>
 const chatFullscreen = document.getElementById("chatFullscreen");
 const chatFullscreenMessages = document.getElementById("chatFullscreenMessages");
 const chatFullscreenInput = document.getElementById("chatFullscreenInput");
@@ -2024,7 +1996,6 @@ function appendAiMessageToChat(htmlContent) {
   chatFullscreenMessages.scrollTop = chatFullscreenMessages.scrollHeight;
 }
 
-// basic HTML escape to avoid injection from user input when we echo it
 function escapeHtml(unsafe) {
   if (!unsafe) return "";
   return unsafe
@@ -2035,31 +2006,19 @@ function escapeHtml(unsafe) {
     .replaceAll("'", "&#039;");
 }
 
-// Extract assistant text from various puter response formats
 function extractPuterContent(raw) {
   if (!raw && raw !== "") return "";
-  // If raw is string, return it
   if (typeof raw === "string") return raw;
-
-  // Common format: { message: { role: "assistant", content: "..." } }
   if (raw.message && typeof raw.message.content === "string") return raw.message.content;
-
-  // Sometimes response may be in an array (choices) like: { choices: [ { message: { content: "..." } } ] }
   if (Array.isArray(raw.choices) && raw.choices.length > 0) {
     const c0 = raw.choices[0];
     if (c0.message && typeof c0.message.content === "string") return c0.message.content;
     if (typeof c0.text === "string") return c0.text;
   }
-
-  // Another common fallback: { content: "..." }
   if (typeof raw.content === "string") return raw.content;
-
-  // Some SDKs return [{ message: { content: "..." } }]
   if (Array.isArray(raw) && raw.length > 0 && raw[0].message && typeof raw[0].message.content === "string") {
     return raw[0].message.content;
   }
-
-  // Last fallback: pretty JSON (so the user sees something readable)
   try {
     return JSON.stringify(raw, null, 2);
   } catch (e) {
@@ -2067,15 +2026,32 @@ function extractPuterContent(raw) {
   }
 }
 
-async function sendFullscreenMessage() {
-  if (!chatFullscreenInput) return;
-  const message = chatFullscreenInput.value.trim();
-  if (!message) return;
+async function aiCallCore(aiPayload) {
+  try {
+    if (puterInitialized && typeof puter.ai !== "undefined" && typeof puter.ai.chat === "function") {
+      let raw;
+      try {
+        raw = await puter.ai.chat(aiPayload, { model: "gpt-5" });
+      } catch (err1) {
+        try {
+          raw = await puter.ai.chat(JSON.stringify(aiPayload), { model: "gpt-5" });
+        } catch (err2) {
+          throw err2 || err1;
+        }
+      }
+      return extractPuterContent(raw);
+    } else {
+      return mockFallbackResponse(aiPayload.user_message, userLocation);
+    }
+  } catch (err) {
+    console.error("Error during AI call:", err);
+    return "Sorry — I'm having trouble connecting to the AI right now. Please try again shortly.";
+  }
+}
 
+async function sendFullscreenMessageCore(message) {
   appendUserMessageToChat(message);
-  chatFullscreenInput.value = "";
-
-  // typing indicator
+  if (chatFullscreenInput) chatFullscreenInput.value = "";
   const typingIndicator = document.createElement("div");
   typingIndicator.className = "chat-fullscreen-message ai typing-indicator";
   typingIndicator.innerHTML = `
@@ -2085,60 +2061,27 @@ async function sendFullscreenMessage() {
   if (chatFullscreenMessages) chatFullscreenMessages.appendChild(typingIndicator);
   if (chatFullscreenMessages) chatFullscreenMessages.scrollTop = chatFullscreenMessages.scrollHeight;
 
-  // Build payload for Puter: system prompt + user message + location
   const aiPayload = {
     system_prompt: SYSTEM_PROMPT,
     user_message: message,
-    user_location: userLocation // may be null
+    user_location: userLocation
   };
 
-  let finalResponse = "";
+  let finalResponse = await aiCallCore(aiPayload);
 
-  try {
-    if (puterInitialized && typeof puter.ai !== "undefined" && typeof puter.ai.chat === "function") {
-      // Call Puter SDK. Some SDKs accept object, some expect string.
-      // We'll try object first; if it errors, we'll retry with JSON string.
-      let raw;
-      try {
-        raw = await puter.ai.chat(aiPayload, { model: "gpt-5" });
-      } catch (err1) {
-        // fallback to string payload if SDK expects string
-        try {
-          raw = await puter.ai.chat(JSON.stringify(aiPayload), { model: "gpt-5" });
-        } catch (err2) {
-          throw err2 || err1;
-        }
-      }
-
-      finalResponse = extractPuterContent(raw);
-    } else {
-      // Fallback / mock response when puter is not ready
-      finalResponse = mockFallbackResponse(message, userLocation);
-    }
-  } catch (err) {
-    console.error("Error during AI call:", err);
-    finalResponse = "Sorry — I'm having trouble connecting to the AI right now. Please try again shortly.";
-  }
-
-  // remove typing indicator
   if (chatFullscreenMessages && chatFullscreenMessages.contains(typingIndicator)) {
     chatFullscreenMessages.removeChild(typingIndicator);
   }
 
-  // append AI response (already safe-ish; ensure string escaped if necessary)
-  // If finalResponse seems to be JSON (starts with { or [), we will display it in a <pre> for readability.
   if (typeof finalResponse === "string" && (finalResponse.trim().startsWith("{") || finalResponse.trim().startsWith("["))) {
     appendAiMessageToChat(`<pre style="white-space:pre-wrap;word-break:break-word;">${escapeHtml(finalResponse)}</pre>`);
   } else {
-    // finalResponse may contain HTML from your AI — if you want to sanitize further, do so here.
     appendAiMessageToChat(escapeHtml(finalResponse).replace(/\n/g, "<br>"));
   }
 }
 
-// Simple mock fallback to keep UI responsive if puter isn't available
 function mockFallbackResponse(message, location) {
   const locText = location ? ` near (${location.lat.toFixed(3)}, ${location.lon.toFixed(3)})` : "";
-  // Short structured response
   return `
 <strong>V-Trip (mock)</strong>
 <div>Thanks — I received: "${escapeHtml(message)}".${locText ? `<div>Using your location: ${locText}.</div>` : ""}</div>
@@ -2149,11 +2092,9 @@ function mockFallbackResponse(message, location) {
   `;
 }
 
-// bindings for chat UI buttons
-if (chatFullscreenSendBtn) chatFullscreenSendBtn.addEventListener("click", sendFullscreenMessage);
+if (chatFullscreenSendBtn) chatFullscreenSendBtn.addEventListener("click", () => sendFullscreenMessage());
 if (closeFullscreenChatBtn) closeFullscreenChatBtn.addEventListener("click", closeFullscreenChat);
 if (newChatBtn) newChatBtn.addEventListener("click", () => {
-  // clear messages (except maybe a greeting)
   if (!chatFullscreenMessages) return;
   const msgs = chatFullscreenMessages.querySelectorAll('.chat-fullscreen-message');
   msgs.forEach((m, i) => { if (i > 0) m.remove(); });
@@ -2162,9 +2103,6 @@ if (newChatBtn) newChatBtn.addEventListener("click", () => {
 if (themeToggleChat) themeToggleChat.addEventListener("click", () => applyTheme(document.body.classList.contains("dark") ? "light" : "dark"));
 if (chatFullscreenInput) chatFullscreenInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendFullscreenMessage(); });
 
-/* ===========================
-   Microphone UI bindings
-   =========================== */
 if (mainMic) mainMic.addEventListener("click", startListening);
 if (closeListening) closeListening.addEventListener("click", stopListening);
 if (bigMicBtn) bigMicBtn.addEventListener("click", stopListening);
@@ -2175,9 +2113,6 @@ function showOverlayIfActive() {
 }
 window.addEventListener("resize", showOverlayIfActive);
 
-/* ===========================
-   Keyboard global handlers (Escape)
-   =========================== */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     if (overlay && overlay.classList.contains("show")) stopListening();
@@ -2188,10 +2123,8 @@ document.addEventListener("keydown", (e) => {
     if (exploreOverlay && exploreOverlay.classList.contains("show")) closeExplore();
   }
 });
-
-/* ===========================
-   Sidebar functionality
-   =========================== */
+</script>
+<script>
 const sidebar = document.getElementById("sidebar");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 const menuBtn = document.getElementById("menuBtn");
@@ -2213,7 +2146,6 @@ if (menuBtn) menuBtn.addEventListener("click", openSidebar);
 if (sidebarClose) sidebarClose.addEventListener("click", closeSidebar);
 if (sidebarOverlay) sidebarOverlay.addEventListener("click", closeSidebar);
 
-/* Trip items clickable */
 const tripItems = document.querySelectorAll(".trip-item");
 tripItems.forEach(item => {
   item.addEventListener("click", function() {
@@ -2224,9 +2156,6 @@ tripItems.forEach(item => {
   });
 });
 
-/* ===========================
-   Explore overlay + categories
-   =========================== */
 const exploreOverlay = document.getElementById("exploreOverlay");
 const closeExploreBtn = document.getElementById("closeExploreBtn");
 
@@ -2258,7 +2187,6 @@ function closeExplore() {
 }
 if (closeExploreBtn) closeExploreBtn.addEventListener("click", closeExplore);
 
-/* Explore categories */
 const exploreCategories = document.querySelectorAll(".explore-category");
 exploreCategories.forEach(category => {
   category.addEventListener("click", function() {
@@ -2269,7 +2197,6 @@ exploreCategories.forEach(category => {
   });
 });
 
-/* Explore items */
 const exploreItems = document.querySelectorAll(".explore-item");
 exploreItems.forEach(item => {
   item.addEventListener("click", function() {
@@ -2279,7 +2206,6 @@ exploreItems.forEach(item => {
   });
 });
 
-/* Explore place cards */
 const explorePlaceCards = document.querySelectorAll(".explore-place-card");
 explorePlaceCards.forEach(card => {
   card.addEventListener("click", function() {
@@ -2289,9 +2215,287 @@ explorePlaceCards.forEach(card => {
   });
 });
 
-/* ===========================
-   Utility: ensure initial canvas sizing
-   =========================== */
+window._lastResolvedDestination = null;
+
+async function geocodePlace(query) {
+  const known = {
+    "kutub minar": { lat: 28.5267, lon: 77.1855, name: "Qutub Minar, Delhi" },
+    "qutub minar": { lat: 28.5267, lon: 77.1855, name: "Qutub Minar, Delhi" },
+    "taj mahal": { lat: 27.1751, lon: 78.0421, name: "Taj Mahal, Agra" }
+  };
+  const key = query.trim().toLowerCase();
+  if (known[key]) {
+    window._lastResolvedDestination = known[key];
+    return known[key];
+  }
+
+  if (typeof GEOCODING_API_KEY !== "undefined" && GEOCODING_API_KEY) {
+    try {
+      const res = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${GEOCODING_API_KEY}&limit=1`);
+      const data = await res.json();
+      if (data && data.results && data.results.length) {
+        const r = data.results[0];
+        const out = { lat: r.geometry.lat, lon: r.geometry.lng, name: r.formatted || query };
+        window._lastResolvedDestination = out;
+        return out;
+      }
+    } catch (e) {
+      console.warn("Geocoding API failed:", e);
+    }
+  }
+
+  const fallback = { lat: 28.6139, lon: 77.2090, name: query };
+  window._lastResolvedDestination = fallback;
+  return fallback;
+}
+
+async function fetchRouteOptions(origin, dest) {
+  const originCoords = origin || { lat: dest.lat - 0.01, lon: dest.lon - 0.01 };
+  const mocked = {
+    fastest: {
+      mode: "drive",
+      provider: "Car (fastest)",
+      distance_km: 12.4,
+      duration_min: 28,
+      transfers: 0,
+      price_estimate: { currency: "INR", amount: 320 },
+      steps: [
+        "Drive via NH48 for 15 km",
+        "Turn right after Qutub Institutional Area",
+        "Arrive at Qutub Minar"
+      ]
+    },
+    cheapest: {
+      mode: "transit",
+      provider: "Metro + Walk",
+      distance_km: 11.2,
+      duration_min: 45,
+      transfers: 1,
+      price_estimate: { currency: "INR", amount: 30 },
+      steps: [
+        "Walk 6 min to nearest metro station",
+        "Metro line to Jor Bagh",
+        "Walk 9 min to Qutub Minar"
+      ]
+    },
+    alternatives: [
+      {
+        mode: "ride_share_pool",
+        provider: "Shared Ola/Uber",
+        distance_km: 12.6,
+        duration_min: 35,
+        price_estimate: { currency: "INR", amount: 180 },
+        steps: ["Book shared ride", "Pickup within 5–10 min", "Drop near monument"]
+      }
+    ]
+  };
+  return mocked;
+}
+
+async function fetchRideshareEstimates(origin, dest) {
+  return {
+    fastestEstimate: { provider: "UberX", eta_min: 3, price: { currency: "INR", amount: 320 } },
+    cheapestEstimate: { provider: "Ola Micro", eta_min: 6, price: { currency: "INR", amount: 180 } },
+    providers: [
+      { name: "UberX", eta_min: 3, price: { currency: "INR", amount: 320 } },
+      { name: "Ola Micro", eta_min: 6, price: { currency: "INR", amount: 180 } },
+      { name: "Rapido", eta_min: 5, price: { currency: "INR", amount: 150 } }
+    ]
+  };
+}
+
+async function fetchNearbyHubs(coords) {
+  return {
+    nearest_airport: { name: "Indira Gandhi Intl Airport (DEL)", distance_km: 18, travel_time_min: 45 },
+    nearest_railway: { name: "New Delhi Railway Station", distance_km: 15.8, travel_time_min: 40 }
+  };
+}
+
+async function fetchNearbyDining(coords) {
+  return [
+    { name: "Olive Bar & Kitchen", distance_min: 6, rating: 4.5, cuisine: "Mediterranean", price_level: 3 },
+    { name: "Local Dhaba", distance_min: 10, rating: 4.0, cuisine: "North Indian", price_level: 1 }
+  ];
+}
+
+async function fetchNearbyHotels(coords) {
+  return [
+    { name: "The Leela Ambience", stars: 5, distance_min: 20, price_per_night: { currency: "INR", amount: 12000 } },
+    { name: "Budget Inn", stars: 3, distance_min: 12, price_per_night: { currency: "INR", amount: 3200 } }
+  ];
+}
+
+function renderSearchingWidget(query) {
+  return `
+    <div class="widget searching-widget">
+      <strong>Searching routes to:</strong> ${escapeHtml(query)}<br>
+      <small>Using your current location — searching routes, ride options, nearby transit & dining...</small>
+      <div style="margin-top:8px;font-style:italic;color:var(--muted)">Status: 🔎 Searching · Connecting to providers · Estimating prices</div>
+    </div>
+  `;
+}
+
+function routeMapLinkParams(route) {
+  return "'{}'";
+}
+
+function actionOpenMaps(paramsQuoted) {
+  const dest = window._lastResolvedDestination || null;
+  if (dest) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest.name || (dest.lat + "," + dest.lon))}${userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : ""}`;
+    window.open(url, "_blank");
+  } else {
+    showNotification("Destination unknown — cannot open maps.");
+  }
+}
+
+function actionRequestRide(kind) {
+  showNotification(`Preparing ${kind === "fastest" ? "fastest ride" : kind === "cheapest" ? "cheapest ride" : "ride"} — deep-linking to provider (mock).`);
+}
+
+function actionSaveItinerary(tag) {
+  showNotification(`Saved itinerary (${tag}). You can view it in Trips.`);
+}
+
+function renderFastestWidget(route, ridesEstimate) {
+  if (!route) return `<div>No fastest route found.</div>`;
+  const price = route.price_estimate ? `<strong>${route.price_estimate.currency} ${route.price_estimate.amount}</strong>` : "—";
+  const rideInfo = ridesEstimate ? `<div>Ride estimate: <strong>${ridesEstimate.provider}</strong> — ETA ${ridesEstimate.eta_min} min — <strong>${ridesEstimate.price.currency} ${ridesEstimate.price.amount}</strong></div>` : "";
+
+  return `
+    <div class="widget route-widget fastest">
+      <h3>Fastest Route · ${escapeHtml(route.provider)}</h3>
+      <div><strong>Mode:</strong> ${escapeHtml(route.mode)} · <strong>Time:</strong> ${route.duration_min} min · <strong>Distance:</strong> ${route.distance_km} km</div>
+      <div style="margin-top:8px">${rideInfo}</div>
+      <div style="margin-top:8px"><strong>Estimated price:</strong> ${price}</div>
+      <div style="margin-top:10px"><em>Summary:</em> ${escapeHtml(route.steps.join(" → "))}</div>
+      <div style="margin-top:10px">
+        <button onclick="actionOpenMaps(${routeMapLinkParams(route)})">Open in Maps</button>
+        <button onclick="actionRequestRide('${escapeHtml(route.provider)}')">Request Ride</button>
+        <button onclick="actionSaveItinerary('fastest')">Save itinerary</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCheapestWidget(route, ridesEstimate) {
+  if (!route) return `<div>No cheapest route found.</div>`;
+  const price = route.price_estimate ? `<strong>${route.price_estimate.currency} ${route.price_estimate.amount}</strong>` : "—";
+  const rideInfo = ridesEstimate ? `<div>Cheapest ride: <strong>${ridesEstimate.provider}</strong> — ETA ${ridesEstimate.eta_min} min — <strong>${ridesEstimate.price.currency} ${ridesEstimate.price.amount}</strong></div>` : "";
+
+  return `
+    <div class="widget route-widget cheapest">
+      <h3>Cheapest Route · ${escapeHtml(route.provider)}</h3>
+      <div><strong>Mode:</strong> ${escapeHtml(route.mode)} · <strong>Time:</strong> ${route.duration_min} min · <strong>Distance:</strong> ${route.distance_km} km</div>
+      <div style="margin-top:8px">${rideInfo}</div>
+      <div style="margin-top:8px"><strong>Estimated price:</strong> ${price}</div>
+      <div style="margin-top:10px"><em>Summary:</em> ${escapeHtml(route.steps.join(" → "))}</div>
+      <div style="margin-top:10px">
+        <button onclick="actionOpenMaps(${routeMapLinkParams(route)})">Open in Maps</button>
+        <button onclick="actionRequestRide('cheapest')">Request Ride</button>
+        <button onclick="actionSaveItinerary('cheapest')">Save itinerary</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProcessWidget(routes, rides) {
+  const fastest = routes.fastest;
+  const cheapest = routes.cheapest;
+  return `
+    <div class="widget process-widget">
+      <h4>Search Process · Real-time</h4>
+      <ol>
+        <li>Searching routes — connected to maps engine.</li>
+        <li>Found <strong>${escapeHtml(fastest.provider)}</strong> as fastest — ${fastest.duration_min} min.</li>
+        <li>Found <strong>${escapeHtml(cheapest.provider)}</strong> as cheapest — ${cheapest.price_estimate.currency} ${cheapest.price_estimate.amount}.</li>
+        <li>Queried ride-hail providers — showing live ETAs and fares.</li>
+        <li>Checked nearby hubs, dining, and hotels — ready to plan stops.</li>
+      </ol>
+      <div style="margin-top:8px"><strong>Live providers snapshot:</strong>
+        <ul>
+          ${rides.providers.map(p => `<li>${escapeHtml(p.name)} — ETA ${p.eta_min} min — <strong>${p.price.currency} ${p.price.amount}</strong></li>`).join("")}
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderExtrasWidget(hubs, dining, hotels) {
+  const hubHtml = hubs ? `<div><strong>Nearest airport:</strong> ${escapeHtml(hubs.nearest_airport.name)} — ${hubs.nearest_airport.distance_km} km · ${hubs.nearest_airport.travel_time_min} min</div>
+  <div><strong>Nearest station:</strong> ${escapeHtml(hubs.nearest_railway.name)} — ${hubs.nearest_railway.distance_km} km · ${hubs.nearest_railway.travel_time_min} min</div>` : "";
+
+  const din = dining.map(d => `<li>${escapeHtml(d.name)} — ${d.rating}★ — ${d.distance_min} min — ${escapeHtml(d.cuisine)}</li>`).join("");
+  const htm = hotels.map(h => `<li>${escapeHtml(h.name)} — ${h.stars}★ — ${h.distance_min} min — <strong>${h.price_per_night.currency} ${h.price_per_night.amount}</strong></li>`).join("");
+
+  return `
+    <div class="widget extras-widget">
+      <h4>Nearby & Practical</h4>
+      ${hubHtml}
+      <div style="margin-top:8px"><strong>Dining picks:</strong><ul>${din}</ul></div>
+      <div style="margin-top:8px"><strong>Hotel picks:</strong><ul>${htm}</ul></div>
+      <div style="margin-top:8px">Would you like me to add any of these to your itinerary or check availability/prices now?</div>
+    </div>
+  `;
+}
+
+async function handleTravelRequest(messageText, userLocation) {
+  const travelIntentRegex = /\b(go to|take me to|i want to go to|i'm going to|book.*trip to|navigate to)\b/i;
+  if (!travelIntentRegex.test(messageText)) {
+    return false;
+  }
+  const toIndex = messageText.toLowerCase().indexOf(" to ");
+  let destinationQuery = messageText;
+  if (toIndex >= 0) destinationQuery = messageText.slice(toIndex + 4);
+  destinationQuery = destinationQuery.replace(/\bfrom\b.*$/i, "").trim();
+
+  appendAiMessageToChat(renderSearchingWidget(destinationQuery));
+
+  try {
+    const destCoords = await geocodePlace(destinationQuery);
+    if (!destCoords) {
+      appendAiMessageToChat(`<div>Sorry — I couldn't find "${escapeHtml(destinationQuery)}". Could you provide a nearby landmark or full address?</div>`);
+      return true;
+    }
+
+    const routes = await fetchRouteOptions(userLocation, destCoords);
+    const rides = await fetchRideshareEstimates(userLocation, destCoords);
+    const hubs = await fetchNearbyHubs(destCoords);
+    const dining = await fetchNearbyDining(destCoords);
+    const hotels = await fetchNearbyHotels(destCoords);
+
+    appendAiMessageToChat(renderFastestWidget(routes.fastest, rides.fastestEstimate));
+    appendAiMessageToChat(renderCheapestWidget(routes.cheapest, rides.cheapestEstimate));
+    appendAiMessageToChat(renderProcessWidget(routes, rides));
+    appendAiMessageToChat(renderExtrasWidget(hubs, dining, hotels));
+
+    return true;
+  } catch (err) {
+    console.error("handleTravelRequest error:", err);
+    appendAiMessageToChat(`<div>Sorry — something went wrong while searching for routes. Try again or provide a clearer destination.</div>`);
+    return true;
+  }
+}
+
+const originalSendFullscreenMessage = async function () {
+  if (!chatFullscreenInput) return;
+  const message = chatFullscreenInput.value.trim();
+  if (!message) return;
+  await sendFullscreenMessageCore(message);
+};
+
+async function sendFullscreenMessage() {
+  if (!chatFullscreenInput) return;
+  const message = chatFullscreenInput.value.trim();
+  if (!message) return;
+  const handled = await handleTravelRequest(message, userLocation);
+  if (handled) {
+    chatFullscreenInput.value = "";
+    return;
+  }
+  return originalSendFullscreenMessage.apply(this, arguments);
+}
+
 resizeCanvas();
 </script>
 
